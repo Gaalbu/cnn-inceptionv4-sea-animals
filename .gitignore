@@ -1,0 +1,12 @@
+# modelos (acima do limite de 100 MB do GitHub) — vão para o Drive da equipe
+*.pt
+*.pth
+*.ckpt
+# dataset baixado localmente
+data/
+sea-animals*/
+# python / jupyter
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+.DS_Store
