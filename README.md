@@ -51,24 +51,28 @@ Notebook: [`notebooks/02_dados_e_base_congelada.ipynb`](notebooks/02_dados_e_bas
 - [ ] Subir `modelo_base_congelada.pt` no Drive da equipe e colocar o link aqui
 - [ ] Fechar com a equipe as **19 classes** (ver pendências)
 
-### Parte 3 · Fine-tuning, avaliação e explicabilidade — *(responsável: a definir)*
-Partir de `artifacts/split.csv` e de **cópias** de `artifacts/modelo_base_congelada.pt`, reaproveitando `set_train_mode`, `run_epoch`, `fit`, `compute_metrics` e `load_checkpoint` do notebook da parte 2 (mesmos dados, métricas e regra de seleção).
-- [ ] **Planejar A e B até a defesa** (o que muda, o que fica fixo, por quê)
-- [ ] Executar A e B; registrar camadas descongeladas, lr, épocas, critério de parada, tempo
-- [ ] Tabela comparativa das três condições (métricas, parâmetros treináveis, épocas, tempo), curvas e matrizes de confusão
-- [ ] Análise visual: mesmas imagens nos três modelos (erros corrigidos, persistentes, novos), usando `val_preds_base_congelada.csv`
-- [ ] **Grad-CAM** nas mesmas imagens nos três modelos (camada `model.features[-1]`, último bloco Inception-C)
-- [ ] Escolher o modelo recomendado **pela validação**; só então avaliar os três no **teste**
-- [ ] Salvar o modelo escolhido, carregar sem retreinar e prever uma **imagem da internet** (mostrar fonte, classe esperada, previsão e score)
+### Parte 3 · Fine-tuning, avaliação e explicabilidade — ✅ código pronto
+Notebook: [`notebooks/03_fine_tuning_e_avaliacao.ipynb`](notebooks/03_fine_tuning_e_avaliacao.ipynb) · [Abrir no Colab](https://colab.research.google.com/github/Gaalbu/cnn-inceptionv4-sea-animals/blob/main/notebooks/03_fine_tuning_e_avaliacao.ipynb)
+Parte de `artifacts/split.csv` e de **cópias** de `artifacts/modelo_base_congelada.pt`, com as mesmas funções da parte 2 (`set_train_mode`, `run_epoch`, `fit`, `compute_metrics`, `load_checkpoint`), mesmos dados, métricas e regra de seleção.
+- [x] **Planejamento de A e B** (o que muda, o que fica fixo, por quê, parâmetros treináveis de cada condição) — seção 2
+- [x] Execução de A e B, registrando camadas descongeladas, lr, épocas, critério de parada e tempo → `modelo_A.pt`, `modelo_B.pt`, `history_*.csv`, `resumo_*.json`
+- [x] Tabela comparativa das três condições, curvas sobrepostas, matrizes de confusão, F1 por classe e acompanhamento da classe *Crabs*
+- [x] Análise visual nas mesmas imagens (erros corrigidos, persistentes e novos)
+- [x] **Grad-CAM** (implementado com hooks, sem dependência extra) nas mesmas imagens nos três modelos, camada `model.features[-1]`
+- [x] Modelo recomendado escolhido **pela validação** (F1-macro; empate < 0,002 → o mais simples); só então os três no **teste**
+- [x] `modelo_recomendado.pt` salvo, carregado sem retreinar e conferido; previsão numa imagem externa com Grad-CAM e top-5
+- [ ] **Rodar no Colab com GPU** depois da parte 2 (artefatos no Drive) e salvar com as saídas
+- [ ] Escolher a **imagem da internet** (preencher `IMG_URL`, `IMG_FONTE`, `CLASSE_ESPERADA` na seção 9)
+- [ ] Escrever as análises marcadas com *(escrever/completar com os resultados reais)*
 
-**Sugestão de estratégias** (a equipe decide):
+**Estratégias:**
 
 | | Estratégia A | Estratégia B |
 |---|---|---|
-| Ideia | Descongelar só o topo, em etapa única | Descongelar mais da rede, progressivamente, com lr menor na base |
-| Camadas | `features[18:]` (Reduction-B + 3× Inception-C) + classificador | Etapa 1: topo como em A; etapa 2: também `features[11:18]` (7× Inception-B) |
+| Ideia | Descongelar só o topo, em etapa única | Descongelar mais da rede, progressivamente, com lr menor nos blocos |
+| Camadas | `features[18:]` (Reduction-B + 3× Inception-C) + classificador | Etapa 1 (até 5 épocas): topo como em A; etapa 2: também `features[11:18]` (7× Inception-B) |
 | Learning rate | 1e-4 | Classificador 1e-4, blocos descongelados 1e-5 |
-| Fixo | Split, aumento de dados, batch 32, AdamW, early stopping (paciência 4) no F1-macro da validação, semente |
+| Fixo | Split, aumento de dados, batch 32, AdamW (wd 1e-4), `ReduceLROnPlateau`, early stopping (paciência 4) no F1-macro da validação, orçamento de 20 épocas, semente 42 |
 
 Estrutura da `features` no `timm`: `0–2` stem, `3–5` Mixed, `6–9` Inception-A, `10` Reduction-A, `11–17` Inception-B, `18` Reduction-B, `19–21` Inception-C.
 
@@ -77,6 +81,7 @@ Estrutura da `features` no `timm`: `0–2` stem, `3–5` Mixed, `6–9` Inceptio
 1. **19 ou 23 classes?** A planilha validada diz 19 classes, mas o dataset original tem 23 pastas. Definir quais saem e por quê, e preencher `CLASSES_EXCLUIR` no notebook da parte 2.
 2. **"Foco em caranguejos / espécie de caranguejo".** O dataset tem uma única classe *Crabs* e não separa espécies, então o target real é o **tipo de animal marinho**. Ajustar a descrição do problema para não haver questionamento na defesa.
 3. Responsáveis das partes 1 e 3.
+4. Ordem de execução: notebook 02 com `USE_DRIVE = True` (os artefatos precisam sobreviver à sessão) e depois o 03, que monta o Drive automaticamente no Colab.
 
 ## Como rodar
 
@@ -90,6 +95,8 @@ Dependências: `requirements.txt`.
 
 ```
 notebooks/
-  02_dados_e_base_congelada.ipynb   # parte 2 (etapas 2 e 3 da lauda)
+  01_equipe_dataset_arquitetura.ipynb  # parte 1 (etapa 1)
+  02_dados_e_base_congelada.ipynb      # parte 2 (etapas 2 e 3)
+  03_fine_tuning_e_avaliacao.ipynb     # parte 3 (fine-tuning, comparação, Grad-CAM, teste, modelo final)
 artifacts/                          # gerado pelo notebook (modelo .pt fora do git)
 ```
