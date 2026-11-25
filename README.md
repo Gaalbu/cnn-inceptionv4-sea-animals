@@ -86,7 +86,9 @@ Notebook: [`notebooks/02_dados_e_base_congelada.ipynb`](notebooks/02_dados_e_bas
 - [ ] **Rodar no Colab com GPU** (`USE_DRIVE = True`) e salvar o notebook com as saídas
 - [ ] Escrever a análise das curvas e dos erros com os resultados reais
 - [ ] Subir `modelo_base_congelada.pt` no Drive da equipe e colocar o link aqui
-- [ ] Fechar com a equipe as **19 classes** (ver pendências)
+- [x] Target explícito na seção 1 e análise 19 × 23 classes na seção 2.4 (decisão atual: **23**; confirmar com a equipe)
+- [x] Acompanhamento da classe *Crabs* na base congelada (seção 3.3)
+- [x] No Colab, os artefatos vão para o Drive automaticamente (mesmo caminho que o notebook 03 lê)
 
 ## Parte 3 · Fine-tuning, avaliação e explicabilidade — Alberto
 
@@ -145,7 +147,7 @@ Estrutura da `features` no `timm`: `0–2` stem, `3–5` Mixed, `6–9` Inceptio
 
 ## Pendências
 
-1. **19 ou 23 classes?** A planilha validada diz 19 classes, mas o dataset original tem 23 pastas. Definir quais saem e por quê, e preencher `CLASSES_EXCLUIR` no notebook 02.
+1. **19 ou 23 classes?** A planilha validada diz 19, mas o dataset tem 23 pastas e as ~13,7 mil imagens correspondem às 23. Decisão atual no código: **manter as 23** (argumentos na seção 2.4 do notebook 02). Confirmar com a equipe e avisar a professora da diferença; para usar 19, preencher `CLASSES_EXCLUIR`.
 2. **"Foco em caranguejos / espécie de caranguejo".** Já tratado no notebook 01 (target = tipo de animal; Crabs com acompanhamento específico). Confirmar que a descrição na planilha e nos slides está coerente com isso.
 3. **Declaração de uso de IA Generativa** no notebook final.
 4. **Rodar tudo no Colab com GPU**, na ordem 01 → 02 → 03, e escrever as análises com os resultados reais.
@@ -156,7 +158,7 @@ Estrutura da `features` no `timm`: `0–2` stem, `3–5` Mixed, `6–9` Inceptio
 ## Como rodar
 
 1. Abrir o notebook 02 no Colab (link acima) e escolher **Ambiente de execução → GPU (T4)**.
-2. Usar `USE_DRIVE = True` no 02, para os artefatos ficarem no Drive (`MyDrive/cnn-inceptionv4-sea-animals/artifacts`). O dataset é baixado com `kagglehub` (pode pedir login do Kaggle).
+2. No Colab o 02 monta o Drive sozinho e salva os artefatos em `MyDrive/cnn-inceptionv4-sea-animals/artifacts` (autorizar o acesso quando pedir). O dataset é baixado com `kagglehub` (pode pedir login do Kaggle).
 3. Rodar o 03 no Colab: ele monta o Drive sozinho e confere se os artefatos da parte 2 estão lá antes de começar.
 4. Para testar o código rapidamente em CPU, sem treino real: variável de ambiente `SMOKE_TEST=1` (e, se quiser, `SEA_DATA_DIR` e `ARTIFACTS_DIR`).
 
